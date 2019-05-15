@@ -1,0 +1,65 @@
+public class Main
+{
+	public static void main(String[] args) throws InterruptedException {
+		System.out.println("Hello World");
+		ResourceLock lock = new ResourceLock();
+		lock.flag=1;
+		
+		Thread oddT = new Thread(()->{
+		                try {
+		                    
+                            synchronized(lock)
+	                        {
+	                            for (int count=1;count<10;count=count+2)
+	                            {
+	                            while(lock.flag!=1)
+	                            {
+	                                lock.wait();
+	                            }
+	                            lock.flag=2;
+	                            System.out.println(count);
+	                            //Thread.sleep(1000);
+	                            lock.notify();
+	                            }
+	                        }
+		                }catch(InterruptedException e)
+		                {
+		                    System.out.println(e);
+		                }
+		                });
+        Thread evenT =  new Thread(()-> {
+                        try {
+                            
+                           synchronized(lock)
+	                       {
+	                           for(int count=2;count<=10;count=count+2)
+	                           {
+	                            while(lock.flag!=2)
+	                            {
+	                                lock.wait();
+	                            }
+	                            
+	                            lock.flag=1;
+	                            System.out.println(count);
+	                            //Thread.sleep(1000);
+	                            lock.notify();
+	                           }
+	                        }
+                         } catch(InterruptedException e)
+                         {
+                             System.out.println(e);
+                         }
+                         });
+        oddT.start();
+        //oddT.join();
+        evenT.start();
+        //evenT.join();
+	}
+
+}
+
+
+
+public class ResourceLock {
+    public volatile int flag =1;
+}
